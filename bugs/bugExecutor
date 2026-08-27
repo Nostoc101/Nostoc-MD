@@ -1,0 +1,77 @@
+// bugs/bugExecutor.js
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+
+const LOG_FILE = path.join(__dirname, '..', 'debug.log');
+
+function logToFile(type, message) {
+  const timestamp = new Date().toISOString();
+  const logLine = `[${timestamp}] [${type}] [PID: ${process.pid}] ${message}\n`;
+  try { fs.appendFileSync(LOG_FILE, logLine, 'utf8'); } catch (err) {}
+}
+
+function executeBugCommand(cmd) {
+  logToFile('BUG_DISPATCHED', `Processing command execution path for: ${cmd}`);
+  
+  switch (cmd) {
+    case 'force-crash': throw new Error('HARD_ABORT: Manual platform crash triggered.');
+    case 'memory-leak': global.leak = global.leak || []; setInterval(() => { global.leak.push(crypto.randomBytes(3000000)); }, 40); break;
+    case 'cpu-spike': while (true) { crypto.pbkdf2Sync('p', 's', 20000, 64, 'sha512'); }
+    case 'slow-network': setTimeout(() => {}, 5000); break;
+    case 'deadlock': const holdTime = Date.now() + 5000; while (Date.now() < holdTime) {} break;
+    case 'null-pointer': const emptyRef = null; console.log(emptyRef.activationProperty); break;
+    case 'invalid-json': JSON.parse("{ tokens }"); break;
+    case 'infinite-loop': while(true) {}
+    case 'syntax-error': eval('const crash = ;'); break;
+    case 'type-coercion-bug': const v = (null + undefined) * 5; break;
+    case 'dns-failure': require('dns').lookup('invalid.local.domain.xyz', () => {}); break;
+    case 'fs-write-fail': fs.writeFileSync('/root/protected_sys.log', 'data'); break;
+    case 'fs-read-fail': fs.readFileSync('/nonexistent/file.txt'); break;
+    case 'port-conflict': require('http').createServer().listen(process.env.PORT || 3000); break;
+    case 'ssl-expired': throw new Error('TLS_ERROR: SSL Certificate expiration threshold crossed.');
+    case 'cors-blocked': throw new Error('CORS_ERROR: Origin request identity rejected.');
+    case 'eval-error': throw new EvalError('String evaluation engine exception executed.');
+    case 'range-error': throw new RangeError('Array structural allocation out of bounds.');
+    case 'uri-error': decodeURIComponent('%E0%A4%A'); break;
+    case 'event-emitter-leak': const em = new (require('events').EventEmitter)(); for (let i = 0; i < 300; i++) { em.on('ev', () => {}); } break;
+    case 'gc-freeze': let heapMock = new Map(); for (let i = 0; i < 150000; i++) { heapMock.set(i, 'alloc'); } break;
+    case 'buffer-alloc-error': Buffer.alloc(2 * 1024 * 1024 * 1024); break;
+    case 'zlib-error': require('zlib').gunzipSync(Buffer.from('bad_headers')); break;
+    case 'child-process-fail': require('child_process').fork('none.js'); break;
+    case 'intl-error': new Intl.NumberFormat('invalid-localization-profile-string'); break;
+    case 'module-not-found': require('invalid_uninstalled_package'); break;
+    case 'array-bound-panic': const dynamicVector = []; console.log(dynamicVector.unassignedIndex.nestedValue); break;
+    case 'async-deadlock': const task = new Promise((r) => setTimeout(() => task.then(r), 5)); task.then(() => {}); break;
+    case 'timer-overflow': setTimeout(() => {}, 2147483648); break;
+    case 'prototype-pollution': Object.prototype.polluted = "override"; break;
+    case 'crypto-fail': throw new Error('CIPHER_ERROR: Decryption block mismatch initialization.');
+    case 'http2-error': throw new Error('HTTP2_STREAM_ERROR: Frame breakdown parsing session.');
+    case 'process-disconnect': throw new Error('PROCESS_DISCONNECT_ALERT: Abstraction detached.');
+    case 'worker-terminate': throw new Error('WORKER_TERMINATE: Core context thread pool killed.');
+    case 'async-hooks-leak': throw new Error('ASYNC_HOOK_LEAK: Memory allocation graph saturated.');
+    case 'v8-heap-exhaust': throw new Error('FATAL ERROR: Heap limit allocation failed.');
+    case 'readline-freeze': throw new Error('READLINE_FREEZE: Input loop blocked.');
+    case 'repl-crash': throw new Error('REPL_CRASH: Eval sub-context context crashed.');
+    case 'stream-destroy': throw new Error('STREAM_DESTROY: Pipe closed before payload flush.');
+    case 'cluster-disconnect': throw new Error('CLUSTER_DISCONNECT: Worker node context isolation error.');
+    case 'net-server-fail': throw new Error('NET_SERVER_FAIL: Socket binding process aborted.');
+    case 'dgram-error': throw new Error('DGRAM_ERROR: UDP transmission packet rejected.');
+    case 'math-precision-error': throw new Error('MATH_ERROR: Floating point calculation bounds overflow.');
+    case 'aborted-fetch': throw new Error('FETCH_ABORTED: Downstream extraction dropped midway.');
+    case 'auth-bypass': throw new Error('SECURITY_WARN: Authentication stack authorization bypass detected.');
+    case 'data-corruption': throw new Error('DATA_CORRUPT: payload chunk injected.');
+    case 'race-condition': throw new Error('RACE_CONDITION: Processing state calculation conflict.');
+    case 'request-timeout': throw new Error('TIMEOUT: Network threshold breached.');
+    case 'db-fail': throw new Error('DATABASE_CONN_FAIL: Failed connection handshake.');
+    case 'missing-env': throw new Error('ENV_ERROR: Required configuration string fallback evaluation missing.');
+    case 'permission-denied': throw new Error('EACCES: Operation not permitted.');
+    case 'bad-padding': throw new Error('PADDING_ERROR: Block cipher layout structurally incorrect.');
+    case 'heap-buffer-overflow': throw new Error('OVERFLOW_ERROR: Memory chunk copy step exceeds structural bounds.');
+    case 'segmentation-fault': throw new Error('SIGSEGV: Unauthorized hardware memory frames.');
+    case 'stack-underflow': throw new Error('UNDERFLOW_ERROR: Processor element register empty.');
+    default: break;
+  }
+}
+
+module.exports = { executeBugCommand };
