@@ -1,62 +1,38 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LORD DIABLO - VIGILANT V7</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOSTOC-MD - LORD DIABLO PANEL</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-    background: #000 url('/diablo.jpg') no-repeat center center fixed;
-    background-size: cover;
-    color: #ff3300;
-    font-family: 'Segoe UI', 'Arial Black', sans-serif;
-    text-align: center;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.container {
-    background: rgba(0,0,0,0.90);
-    border: 3px solid #ff3300;
-    border-radius: 20px;
-    padding: 30px 20px;
-    max-width: 450px;
-    width: 90%;
-    box-shadow: 0 0 40px #ff0000, inset 0 0 20px rgba(255,0,0,0.2);
-}
-h1 { color: #ff3300; text-shadow: 0 0 15px #ff0000; font-size: 28px; margin-bottom: 10px; }
-h3 { color: #ffaa00; margin-bottom: 20px; }
-input { width: 90%; padding: 14px; margin: 10px; border-radius: 10px; border: 2px solid #ff3300; background: #110000; color: #fff; font-size: 16px; text-align: center; font-weight: bold; }
+body { background: #000 url('/diablo.jpg') no-repeat center center fixed; background-size: cover; color: #ff3300; font-family: 'Arial Black', sans-serif; text-align: center; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.container { background: rgba(0,0,0,0.92); border: 3px solid #ff3300; border-radius: 20px; padding: 30px 20px; max-width: 450px; width: 90%; box-shadow: 0 0 50px #ff0000; }
+h1 { color: #ff3300; text-shadow: 0 0 20px #ff0000; font-size: 26px; margin-bottom: 10px; }
+h3 { color: #ffaa00; margin-bottom: 15px; font-size: 14px; }
+input { width: 90%; padding: 14px; margin: 10px; border-radius: 10px; border: 2px solid #ff3300; background: #110000; color: #00ff00; font-size: 16px; text-align: center; font-weight: bold; }
 button { width: 90%; padding: 14px; margin: 10px; border-radius: 10px; border: none; background: linear-gradient(45deg, #ff3300, #ff0000); color: #000; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.3s; }
-button:hover { box-shadow: 0 0 20px #ff3300; transform: scale(1.05); }
-.code { font-size: 28px; color: #00ff00; letter-spacing: 4px; margin: 20px 0; text-shadow: 0 0 10px #00ff00; }
-#status { color: #ffaa00; }
+button:hover { box-shadow: 0 0 25px #ff3300; transform: scale(1.05); }
+.code { font-size: 32px; color: #00ff00; letter-spacing: 5px; margin: 20px 0; text-shadow: 0 0 15px #00ff00; }
 </style>
 </head>
 <body>
 <div class="container">
-    <h1>👹 LORD DIABLO SYSTEM V7 👹</h1>
-    <h3>VIGILANT PAIRING PANEL</h3>
-    <input type="text" id="number" value="2348142334779" readonly>
+    <h1>👹 NOSTOC-MD SYSTEM 👹</h1>
+    <h3>ADMIN: 2348142334779</h3>
+    <input type="text" value="2348142334779" readonly>
     <button onclick="getCode()">GET PAIRING CODE</button>
     <h2 class="code" id="code">Code: ----</h2>
-    <p id="status">Status: Waiting for command...</p>
+    <p id="status">Status: Waiting...</p>
+    <p style="font-size:11px; color:#888; margin-top:15px">WhatsApp > Settings > Linked Devices > Link with phone number</p>
 </div>
 <script>
 async function getCode() {
     document.getElementById('status').innerText = "Generating code...";
-    const res = await fetch('/api/pair', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({number: "2348142334779"}) });
+    const res = await fetch('/api/pair', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({}) });
     const data = await res.json();
-    if(data.code) {
-        document.getElementById('code').innerText = "Code: " + data.code;
-        document.getElementById('status').innerText = "Status: Enter code on WhatsApp now!";
-    } else {
-        document.getElementById('status').innerText = "Error: " + data.error;
-    }
+    document.getElementById('code').innerText = data.code? "Code: " + data.code : "Error";
+    document.getElementById('status').innerText = data.code? "Status: Enter code on WhatsApp!" : data.error;
 }
 </script>
 </body>
-  </html>
+</html>
