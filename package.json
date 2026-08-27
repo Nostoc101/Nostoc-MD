@@ -1,1 +1,18 @@
+{
+  "name": "vigilant-system-v7",
+  "version": "7.0.0",
+  "description": "High-performance modular monitoring framework via real pairing code under Operator Nostoc.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Nostoc 😈",
+  "license": "MIT",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.6.0",
+    "pino": "^9.0.0",
+    "dotenv": "^16.4.5"
+  }
+}
 
