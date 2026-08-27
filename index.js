@@ -36,12 +36,26 @@ async function loadSystemArchitecture() {
     const commandsDir = path.join(__dirname, 'commands');
     if (!fs.existsSync(commandsDir)) fs.mkdirSync(commandsDir);
 
-    // Built-in Core
-    commands.set('status', {
+   // Built-in Core
+commands.set('status', {
         name: 'status',
         cooldown: 1000,
         adminOnly: false,
         execute: () => `BOT : ${BOT_NAME}\nSTATUS : OPERATIONAL\nINTEGRITY: 100%\nOPERATOR : ${OWNER_NAME}\nNUMBER : ${TARGET_PHONE}`
+    });
+
+    commands.set('ping', {
+        name: 'ping',
+        cooldown: 1000,
+        adminOnly: false,
+        execute: () => `🚀 [NOSTOC-MD://PING]\nLATENCY : ${Date.now() - Date.now()}ms\nSTATUS : ONLINE\nTARGET : ${TARGET_PHONE}`
+    });
+
+    commands.set('menu', {
+        name: 'menu',
+        cooldown: 2000,
+        adminOnly: false,
+        execute: () => `💀 ${THEME.banner}\n\nCOMMANDS:\n!ping - Check bot\n!status - Bot info\n!bug1-!bug55 - Admin only\nTOTAL: ${commands.size} commands loaded`
     });
 
     // 55 Bug Commands - ADMIN ONLY
