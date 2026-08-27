@@ -1,52 +1,50 @@
 import makeWASocket, { useMultiFileAuthState, DisconnectReason, Browsers } from '@whiskeysockets/baileys';
 import pino from 'pino';
-import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import 'dotenv/config';
+import express from 'express';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ==========================================
-// CORE IDENTITY & SECURITY PROTOCOLS
+// CORE IDENTITY & SECURITY PROTOCOLS - NOSTOC-MD
 // ==========================================
 const OWNER_NAME = "Nostoc 😈";
+const BOT_NAME = "Nostoc-MD";
 const PREFIX = "!";
 const PORT = process.env.PORT || 10000; 
-
-// Replace with your real phone number including country code (e.g., "2348012345678")
-const TARGET_PHONE = process.env.PHONE_NUMBER || "234XXXXXXXXXX"; 
+const TARGET_PHONE = "2348142334779"; // YOUR NUMBER LOCKED
 
 const THEME = {
-    banner: `\n[VIGILANT SYSTEM // VERSION 7.0.0]\n> INTEGRATED ADMIN LOCK: ENGAGED\n> AUTHORIZED OPERATOR: ${OWNER_NAME.toUpperCase()}\n----------------------------------------`,
-    prefix: `[VIGILANT://SYSTEM]`,
+    banner: `\n[NOSTOC-MD SYSTEM // VERSION 7.0.0]\n> INTEGRATED ADMIN LOCK: ENGAGED\n> AUTHORIZED OPERATOR: ${OWNER_NAME.toUpperCase()}\n> TARGET NUMBER: ${TARGET_PHONE}\n----------------------------------------`,
+    prefix: `[NOSTOC-MD://SYSTEM]`,
     line: `----------------------------------------`,
-    securityAlert: `❌ [SECURITY://ACCESS_DENIED]\n> PRIVILEGE ENFORCEMENT PROTOCOL ACTIVATED.\n> OPERATOR IDENTITY IS NOT AUTHORIZED.`
+    securityAlert: `❌ [SECURITY://ACCESS_DENIED]\n> PRIVILEGE ENFORCEMENT PROTOCOL ACTIVATED.\n> ONLY ${TARGET_PHONE} CAN USE ADMIN COMMANDS`
 };
 
 const commands = new Map();
 const cooldowns = new Map();
+let sockGlobal;
 
 // ==========================================
-// LOAD COMPLETE 200+ COMMAND MATRIX
+// LOAD COMMAND MATRIX
 // ==========================================
 async function loadSystemArchitecture() {
     const commandsDir = path.join(__dirname, 'commands');
-    if (!fs.existsSync(commandsDir)) {
-        fs.mkdirSync(commandsDir);
-    }
+    if (!fs.existsSync(commandsDir)) fs.mkdirSync(commandsDir);
 
-    // 1. Built-in Core Diagnostics
+    // Built-in Core
     commands.set('status', {
         name: 'status',
         cooldown: 1000,
         adminOnly: false,
-        execute: () => `STATUS   : OPERATIONAL\nINTEGRITY: 100%\nMATRIX   : ACTIVE\nOPERATOR : ${OWNER_NAME}`
+        execute: () => `BOT : ${BOT_NAME}\nSTATUS : OPERATIONAL\nINTEGRITY: 100%\nOPERATOR : ${OWNER_NAME}\nNUMBER : ${TARGET_PHONE}`
     });
 
-    // 2. Initialize the 55 High-Speed Bug Arrays
+    // 55 Bug Commands - ADMIN ONLY
     for (let i = 1; i <= 55; i++) {
         const cmdName = `bug${i}`;
         commands.set(cmdName, {
@@ -55,12 +53,12 @@ async function loadSystemArchitecture() {
             adminOnly: true, 
             execute: (args) => {
                 const targetNode = args.join(" ") || "TARGET_UNSPECIFIED";
-                return `💀 [MALWARE_SIMULATION://V7_DESTRUCT_LOAD_${i}]\nVECTOR    : CORE_EXPLOIT_INDEX_${i}\nTARGET    : ${targetNode.toUpperCase()}\nSTATUS    : TESTING / RESTRICTED\nSIGNATURE : LOCKED BY ${OWNER_NAME}`;
+                return `💀 [NOSTOC-MD://DESTRUCT_LOAD_${i}]\nVECTOR : CORE_EXPLOIT_INDEX_${i}\nTARGET : ${targetNode.toUpperCase()}\nSTATUS : TESTING / RESTRICTED\nADMIN : ${OWNER_NAME}\nLOCKED TO : ${TARGET_PHONE}`;
             }
         });
     }
 
-    // 3. Dynamic Folder Loader for your remaining 200+ commands
+    // Load your 200+ commands from /commands folder
     try {
         const commandFiles = fs.readdirSync(commandsDir).filter(file => file.endsWith('.js'));
         for (const file of commandFiles) {
@@ -77,7 +75,7 @@ async function loadSystemArchitecture() {
 }
 
 // ==========================================
-// SPAM FILTERS & INPUT ROUTING
+// SPAM FILTERS
 // ==========================================
 function verifyRateLimit(sender, commandName, cooldownMs) {
     if (!cooldowns.has(commandName)) cooldowns.set(commandName, new Map());
@@ -92,62 +90,56 @@ function verifyRateLimit(sender, commandName, cooldownMs) {
 }
 
 // ==========================================
-// CORE WHATSAPP ENGINE & LIVE CONNECTION
+// CORE WHATSAPP ENGINE
 // ==========================================
-async function startVigilantSystem() {
+async function startNostocMD() {
     console.log(THEME.banner);
     await loadSystemArchitecture();
-    console.log(`> SYSTEMS: ${commands.size} total commands registered smoothly in execution map.`);
+    console.log(`> SYSTEMS: ${commands.size} total commands registered.`);
 
-    const { state, saveCreds } = await useMultiFileAuthState('v7_auth_session');
+    const { state, saveCreds } = await useMultiFileAuthState('nostoc_md_session');
 
-    // FIXED IMPLEMENTATION WITH WEB BROWSER RECOGNITION
-    const sock = makeWASocket({
+    sockGlobal = makeWASocket({
         logger: pino({ level: 'silent' }), 
         auth: state,
         printQRInTerminal: false,
         browser: Browsers.ubuntu('Chrome') 
     });
 
-    // TRIGGER LIVE NUMBER PAIRING
-    if (!sock.authState.creds.registered) {
+    // AUTO PAIRING CODE FOR YOUR NUMBER
+    if (!sockGlobal.authState.creds.registered) {
         setTimeout(async () => {
             try {
-                console.log(`> CORE: Connecting to official WhatsApp authentication nodes...`);
-                const cleanPhone = TARGET_PHONE.replace(/[^0-9]/g, '');
-                let code = await sock.requestPairingCode(cleanPhone);
+                console.log(`> CORE: Generating pairing code for ${TARGET_PHONE}...`);
+                let code = await sockGlobal.requestPairingCode(TARGET_PHONE);
                 code = code?.match(/.{1,4}/g)?.join('-') || code;
                 
                 console.log(`\n${THEME.line}`);
-                console.log(`🔑 LIVE AUTH KEY GENERATED FOR: ${OWNER_NAME}`);
+                console.log(`🔑 NOSTOC-MD AUTH KEY FOR ${TARGET_PHONE}`);
                 console.log(`PAIRING CODE: ${code}`);
-                console.log(`${THEME.line}`);
-                console.log(`👉 Check your phone notification or open: WhatsApp > Linked Devices > Link with Phone Number\n`);
+                console.log(`${THEME.line}\n`);
             } catch (err) {
                 console.error(`> FAILED TO GENERATE PAIRING CODE:`, err.message);
             }
         }, 4000);
     }
 
-    sock.ev.on('creds.update', saveCreds);
+    sockGlobal.ev.on('creds.update', saveCreds);
 
-    sock.ev.on('connection.update', (update) => {
+    sockGlobal.ev.on('connection.update', (update) => {
         const { connection, lastDisconnect } = update;
         if (connection === 'close') {
-            const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
-            console.log(`> CONNECTION LOST: Re-linking socket pipeline...`);
-            if (shouldReconnect) startVigilantSystem();
+            const shouldReconnect = lastDisconnect?.error?.output?.statusCode!== DisconnectReason.loggedOut;
+            if (shouldReconnect) setTimeout(() => startNostocMD(), 3000);
         } else if (connection === 'open') {
-            console.log(`\n========================================`);
-            console.log(`🚀 SUCCESS: VIGILANT SYSTEM IS LIVE AND STREAMING!`);
-            console.log(`========================================\n`);
+            console.log(`🚀 SUCCESS: NOSTOC-MD IS LIVE FOR ${TARGET_PHONE}!`);
         }
     });
 
-    // LISTEN FOR LIVE COMMANDS
-    sock.ev.on('messages.upsert', async (m) => {
+    // MESSAGE HANDLER
+    sockGlobal.ev.on('messages.upsert', async (m) => {
         const msg = m.messages;
-        if (!msg || !msg[0] || !msg[0].message || msg[0].key.fromMe) return;
+        if (!msg ||!msg[0] ||!msg[0].message || msg[0].key.fromMe) return;
 
         const currentMsg = msg[0];
         const senderId = currentMsg.key.participant || currentMsg.key.remoteJid;
@@ -161,23 +153,23 @@ async function startVigilantSystem() {
         if (!commands.has(invokedCommand)) return;
         const targetedCommand = commands.get(invokedCommand);
 
-        // --- ENFORCE STRICT NOSTOC ADMIN LOCK ---
-        const isAdmin = senderId.includes(TARGET_PHONE) || senderId.includes("234"); 
-        if (targetedCommand.adminOnly && !isAdmin) {
-            await sock.sendMessage(currentMsg.key.remoteJid, { text: `${THEME.prefix}\n${THEME.line}\n${THEME.securityAlert}\n${THEME.line}` });
+        // STRICT ADMIN LOCK - ONLY YOUR NUMBER
+        const isAdmin = senderId.includes(TARGET_PHONE);
+        if (targetedCommand.adminOnly &&!isAdmin) {
+            await sockGlobal.sendMessage(currentMsg.key.remoteJid, { text: `${THEME.prefix}\n${THEME.line}\n${THEME.securityAlert}\n${THEME.line}` });
             return;
         }
 
         const processingDelaySeconds = verifyRateLimit(senderId, invokedCommand, targetedCommand.cooldown || 1000);
         if (processingDelaySeconds > 0) {
-            await sock.sendMessage(currentMsg.key.remoteJid, { text: `${THEME.prefix}\n> REJECTION: Thread cooling down. Wait ${processingDelaySeconds}s.` });
+            await sockGlobal.sendMessage(currentMsg.key.remoteJid, { text: `${THEME.prefix}\n> REJECTION: Thread cooling down. Wait ${processingDelaySeconds}s.` });
             return;
         }
 
         try {
             const output = targetedCommand.execute(systemTokens, senderId);
             const responseText = [THEME.prefix, THEME.line, output, THEME.line].join('\n');
-            await sock.sendMessage(currentMsg.key.remoteJid, { text: responseText });
+            await sockGlobal.sendMessage(currentMsg.key.remoteJid, { text: responseText });
         } catch (err) {
             console.error(err);
         }
@@ -185,14 +177,24 @@ async function startVigilantSystem() {
 }
 
 // ==========================================
-// RENDER DEPLOYMENT COMPLIANCE HOOK
+// NOSTOC-MD WEB PANEL
 // ==========================================
-const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end(`VIGILANT CORE ACTIVE\nAUTHORIZED OPERATOR: ${OWNER_NAME}\n`);
+const app = express();
+app.use(express.json());
+app.use(express.static('public'));
+
+app.post('/api/pair', async (req, res) => {
+    try {
+        if (!sockGlobal) return res.json({ error: "Bot not ready yet, wait 5s" });
+        let code = await sockGlobal.requestPairingCode(TARGET_PHONE);
+        code = code?.match(/.{1,4}/g)?.join('-') || code;
+        res.json({ code });
+    } catch (e) {
+        res.json({ error: e.message });
+    }
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-    console.log(`> ENVIRONMENT: Web routing layer online on port: ${PORT}`);
-    startVigilantSystem();
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`> WEB PANEL: NOSTOC-MD ONLINE ON PORT: ${PORT}`);
+    startNostocMD();
 });
